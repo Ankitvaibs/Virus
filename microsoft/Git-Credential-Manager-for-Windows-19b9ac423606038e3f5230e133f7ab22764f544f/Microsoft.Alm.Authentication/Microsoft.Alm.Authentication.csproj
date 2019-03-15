@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C1DAABC1-B493-459D-BB4F-04FBEFB1BA13}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Alm.Authentication</RootNamespace>
+    <AssemblyName>Microsoft.Alm.Authentication</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>3487aeea</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Package|AnyCPU'">
+    <OutputPath>bin\Package\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory, Version=2.18.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.2.18.206251556\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms, Version=2.18.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.2.18.206251556\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GitHubAuthentication.cs" />
+    <Compile Include="GitHubAuthenticationResult.cs" />
+    <Compile Include="GitHubAuthority.cs" />
+    <Compile Include="GitHubTokenScope.cs" />
+    <Compile Include="Global.cs" />
+    <Compile Include="IGitHubAuthentication.cs" />
+    <Compile Include="IGitHubAuthority.cs" />
+    <Compile Include="SecretCache.cs" />
+    <Compile Include="TokenScope.cs" />
+    <Compile Include="TargetUri.cs" />
+    <Compile Include="VstsAzureAuthority.cs" />
+    <Compile Include="VstsTokenScope.cs" />
+    <Compile Include="AzureAuthority.cs" />
+    <Compile Include="IAzureAuthority.cs" />
+    <Compile Include="IVstsMsaAuthentication.cs" />
+    <Compile Include="TokenPair.cs" />
+    <Compile Include="TokenType.cs" />
+    <Compile Include="VstsAadAuthentication.cs" />
+    <Compile Include="BaseVstsAuthentication.cs" />
+    <Compile Include="BaseAuthentication.cs" />
+    <Compile Include="BaseSecureStore.cs" />
+    <Compile Include="BasicAuthentication.cs" />
+    <Compile Include="Credential.cs" />
+    <Compile Include="IAuthentication.cs" />
+    <Compile Include="IVstsAadAuthentication.cs" />
+    <Compile Include="ICredentialStore.cs" />
+    <Compile Include="ITokenStore.cs" />
+    <Compile Include="VstsAdalTokenCache.cs" />
+    <Compile Include="VstsMsaAuthentication.cs" />
+    <Compile Include="Token.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="IVstsAuthority.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TokenRegistry.cs" />
+    <Compile Include="SecretStore.cs" />
+    <Compile Include="Secret.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- Produce a nuget package of this assembly -->
+  <Import Project="..\packages\MSBuildTasks.*\tools\MSBuild.Community.Tasks.Targets" />
+  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Package'">
+    <!-- Only download a new copy of nuget.exe if we don't have a copy available -->
+    <PropertyGroup>
+      <NugetPath>nuget.exe</NugetPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="!Exists($(NugetPath))">
+      <NugetPath>$(IntermediateOutputPath)nuget.exe</NugetPath>
+    </PropertyGroup>
+    <WebDownload Condition="!Exists($(NugetPath))" Filename="$(NugetPath)" FileUri="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" />
+    <Exec Command="$(NugetPath) pack $(AssemblyName).csproj -Symbols -IncludeReferencedProjects -Prop Configuration=Package -OutputDirectory $(OutputPath)" />
+  </Target>
+</Project>

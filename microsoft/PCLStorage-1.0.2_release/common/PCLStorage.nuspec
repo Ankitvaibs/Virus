@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata minClientVersion="2.8.1">
+        <id>PCLStorage</id>
+        <version>1.0.1</version>
+        <title>PCL Storage - Portable Storage APIs</title>
+        <authors>Daniel Plaisted</authors>
+        <owners>Daniel Plaisted</owners>
+        <licenseUrl>https://github.com/dsplaisted/PCLStorage/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/dsplaisted/PCLStorage</projectUrl>
+        <iconUrl>https://dsplaisted.blob.core.windows.net/oss/pickles_64.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>PCL Storage provides a consistent, portable set of local file IO APIs for .NET, Windows Phone, Windows Store, Xamarin.iOS, Xamarin.Android, and Silverlight.  This makes it easier to create cross-platform .NET libraries and apps.</description>
+        <summary>PCL Storage provides a consistent, portable set of local file IO APIs across .NET platforms.</summary>
+        <tags>io storage file portable pcl winrt android ios xamarin monoandroid monodroid monotouch</tags>
+        <dependencies>
+          <group targetFramework="net45">
+          </group>
+          <group targetFramework="wp8">
+          </group>
+          <group targetFramework="win8">
+          </group>
+          <group targetFramework="wpa81">
+          </group>
+          <group targetFramework="monoandroid">
+          </group>
+          <group targetFramework="monotouch">
+          </group>
+          <group targetFramework="Xamarin.iOS">
+          </group>
+          <group targetFramework="portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac">
+          </group>
+          <group>
+            <dependency id="Microsoft.Bcl.Async" version="1.0.165" />
+            <dependency id="Microsoft.Bcl" version="1.1.6" />
+          </group>
+        </dependencies>
+    </metadata>
+    <files>
+      <file src="..\src\PCLStorage\bin\Release\PCLStorage.dll" target="lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.dll" />
+      <file src="..\src\PCLStorage\bin\Release\PCLStorage.xml" target="lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions\bin\Release\PCLStorage.Abstractions.dll" target="lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions\bin\Release\PCLStorage.Abstractions.xml" target="lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.xml" />
+
+      <file src="..\src\PCLStorage.NoSL\bin\Release\PCLStorage.dll" target="lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.NoSL\bin\Release\PCLStorage.xml" target="lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.dll" target="lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.xml" target="lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.xml" />
+      
+      <file src="..\src\PCLStorage.FileSystem.Desktop\bin\Release\PCLStorage.dll" target="lib\net45\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.FileSystem.Desktop\bin\Release\PCLStorage.xml" target="lib\net45\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.dll" target="lib\net45\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.xml" target="lib\net45\PCLStorage.Abstractions.xml" />
+
+      <file src="..\src\PCLStorage.IsoStore.SL\bin\Release\PCLStorage.dll" target="lib\sl5\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.IsoStore.SL\bin\Release\PCLStorage.xml" target="lib\sl5\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions\bin\Release\PCLStorage.Abstractions.dll" target="lib\sl5\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions\bin\Release\PCLStorage.Abstractions.xml" target="lib\sl5\PCLStorage.Abstractions.xml" />
+
+      <file src="..\src\PCLStorage.WindowsPhone\bin\Release\PCLStorage.dll" target="lib\wp8\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.WindowsPhone\bin\Release\PCLStorage.xml" target="lib\wp8\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.dll" target="lib\wp8\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.xml" target="lib\wp8\PCLStorage.Abstractions.xml" />
+
+      <file src="..\src\PCLStorage.WinRT\bin\Release\PCLStorage.dll" target="lib\portable-win8+wpa81\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.WinRT\bin\Release\PCLStorage.xml" target="lib\portable-win8+wpa81\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.dll" target="lib\portable-win8+wpa81\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.xml" target="lib\portable-win8+wpa81\PCLStorage.Abstractions.xml" />
+
+      <file src="..\src\PCLStorage.Android\bin\Release\PCLStorage.dll" target="lib\monoandroid\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.Android\bin\Release\PCLStorage.xml" target="lib\monoandroid\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.dll" target="lib\monoandroid\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.xml" target="lib\monoandroid\PCLStorage.Abstractions.xml" />
+
+      <file src="..\src\PCLStorage.iOS\bin\iPhone\Release\PCLStorage.dll" target="lib\monotouch\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.iOS\bin\iPhone\Release\PCLStorage.xml" target="lib\monotouch\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.dll" target="lib\monotouch\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.xml" target="lib\monotouch\PCLStorage.Abstractions.xml" />
+      
+      <file src="..\src\PCLStorage.iOS-Unified\bin\iPhone\Release\PCLStorage.dll" target="lib\portable-Xamarin.iOS+Xamarin.Mac\PCLStorage.dll" />
+      <file src="..\src\PCLStorage.iOS-Unified\bin\iPhone\Release\PCLStorage.xml" target="lib\portable-Xamarin.iOS+Xamarin.Mac\PCLStorage.xml" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.dll" target="lib\portable-Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.dll" />
+      <file src="..\src\PCLStorage.Abstractions.NoSL\bin\Release\PCLStorage.Abstractions.xml" target="lib\portable-Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.xml" />
+
+    </files>
+</package>

@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import os
+import subprocess
+import sys
+
+from patch import apply_patches_from_directory
+
+
+SOURCE_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+PATCHES_DIR = os.path.join(SOURCE_ROOT, 'patches')
+PATCHES_MAS_DIR = os.path.join(SOURCE_ROOT, 'patches-mas')
+SRC = 'src'
+SRC_DIR = os.path.join(SOURCE_ROOT, SRC)
+
+
+def main():
+  error = apply_patches_for_dir(PATCHES_DIR)
+  if not error:
+    if os.environ.has_key('MAS_BUILD'):
+      error = apply_patches_for_dir(PATCHES_MAS_DIR)
+    if not error:
+      return
+
+  sys.stderr.write(error + '\n')
+  sys.stderr.flush()
+  return 1
+
+
+def apply_patches_for_dir(directory):
+  for root, dirs, files in os.walk(directory):
+    prefix = os.path.relpath(root, directory)
+    repo = SRC if prefix == '.' else os.path.join(SRC, prefix)
+
+    (success, failed_patches) = apply_patches_from_directory(repo, root)
+    if not success:
+      return '{0} failed to apply'.format(os.path.basename(failed_patches[0]))
+
+
+if __name__ == '__main__':
+    sys.exit(main())

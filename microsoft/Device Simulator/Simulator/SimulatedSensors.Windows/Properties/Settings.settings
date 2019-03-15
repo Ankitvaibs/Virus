@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SimulatedSensors.Windows.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="IoTHubConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">IoTHub Connection String</Value>
+    </Setting>
+    <Setting Name="DeviceId" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Device Id</Value>
+    </Setting>
+    <Setting Name="GatewayName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DefaultGateway</Value>
+    </Setting>
+    <Setting Name="ObjectTypeInstance" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ThermoSensor</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

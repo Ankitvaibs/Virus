@@ -1,0 +1,9 @@
+{
+    "root": true,
+    "extends": ["mysticatea/es5", "mysticatea/node"],
+    "rules": {
+        "no-console": 0,
+        "no-process-env": 0,
+        "no-process-exit": 0
+    }
+}

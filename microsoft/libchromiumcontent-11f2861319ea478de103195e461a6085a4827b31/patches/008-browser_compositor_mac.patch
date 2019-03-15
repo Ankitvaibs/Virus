@@ -1,0 +1,66 @@
+diff --git a/content/browser/renderer_host/browser_compositor_view_mac.h b/content/browser/renderer_host/browser_compositor_view_mac.h
+index 1c73b7f3a..1b368aa0a 100644
+--- a/content/browser/renderer_host/browser_compositor_view_mac.h
++++ b/content/browser/renderer_host/browser_compositor_view_mac.h
+@@ -10,6 +10,7 @@
+ #include "base/macros.h"
+ #include "cc/scheduler/begin_frame_source.h"
+ #include "content/browser/renderer_host/delegated_frame_host.h"
++#include "content/common/content_export.h"
+ #include "ui/compositor/compositor.h"
+ #include "ui/compositor/compositor_observer.h"
+ 
+@@ -39,7 +40,7 @@ class BrowserCompositorMacClient {
+ //   is visible.
+ // - The RenderWidgetHostViewMac that is used to display these frames is
+ //   attached to the NSView hierarchy of an NSWindow.
+-class BrowserCompositorMac : public DelegatedFrameHostClient {
++class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient {
+  public:
+   BrowserCompositorMac(
+       ui::AcceleratedWidgetMacNSView* accelerated_widget_mac_ns_view,
+@@ -51,9 +52,11 @@ class BrowserCompositorMac : public DelegatedFrameHostClient {
+ 
+   // These will not return nullptr until Destroy is called.
+   DelegatedFrameHost* GetDelegatedFrameHost();
++  ui::Layer* GetRootLayer() { return root_layer_.get(); }
+ 
+   // This may return nullptr, if this has detached itself from its
+   // ui::Compositor.
++  ui::Compositor* GetCompositor();
+   ui::AcceleratedWidgetMac* GetAcceleratedWidgetMac();
+ 
+   void DidCreateNewRendererCompositorFrameSink(
+diff --git a/content/browser/renderer_host/browser_compositor_view_mac.mm b/content/browser/renderer_host/browser_compositor_view_mac.mm
+index fba983b37..8cf962916 100644
+--- a/content/browser/renderer_host/browser_compositor_view_mac.mm
++++ b/content/browser/renderer_host/browser_compositor_view_mac.mm
+@@ -202,6 +202,12 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
+     g_spare_recyclable_compositors.Get().clear();
+ }
+ 
++ui::Compositor* BrowserCompositorMac::GetCompositor() {
++  if (recyclable_compositor_)
++    return recyclable_compositor_->compositor();
++  return nullptr;
++}
++
+ ui::AcceleratedWidgetMac* BrowserCompositorMac::GetAcceleratedWidgetMac() {
+   if (recyclable_compositor_)
+     return recyclable_compositor_->accelerated_widget_mac();
+@@ -421,8 +427,13 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
+ }
+ 
+ gfx::Size BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP() const {
+-  NSRect bounds = [client_->BrowserCompositorMacGetNSView() bounds];
+-  return gfx::Size(bounds.size.width, bounds.size.height);
++  // View will be nil with CEF OSR.
++  NSView* view = client_->BrowserCompositorMacGetNSView();
++  if (view) {
++    NSRect bounds = [view bounds];
++    return gfx::Size(bounds.size.width, bounds.size.height);
++  }
++  return root_layer_->bounds().size();
+ }
+ 
+ bool BrowserCompositorMac::DelegatedFrameCanCreateResizeLock() const {

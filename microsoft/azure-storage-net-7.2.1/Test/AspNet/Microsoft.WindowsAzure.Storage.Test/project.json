@@ -1,0 +1,49 @@
+﻿{
+    "version": "7.2.1.0",
+    "testRunner": "xunit",
+
+    "dependencies": {
+        "xunit": "2.1.0",
+        "dotnet-test-xunit": "2.2.0-preview2-build1029",
+        "Microsoft.WindowsAzure.Storage": "7.2.1.0-*",
+        "XUnitForMsTest": "1.0.0-*"
+    },
+
+    "frameworks": {
+        "netcoreapp1.0": {
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.0"
+                }
+            },
+            "imports": [
+                "dnxcore50",
+                "portable-net45+win8"
+            ]
+        }
+    },
+
+    "buildOptions": {
+        "define": [ "NETCORE", "XUNIT" ],
+        "delaySign": true,
+        "keyFile": "MSSharedLibKey.snk",
+        "compile": [
+            "**/*.cs",
+            "../../Common/*.cs",
+            "../../Common/Blob/*.cs",
+            "../../Common/Core/*.cs",
+            "../../Common/File/*.cs",
+            "../../Common/Queue/*.cs",
+            "../../Common/Table/*.cs",
+            "../../Common/Table/Entities/*.cs",
+            "../../Common/TestConfigProcess/**/*.cs",
+
+            "../../WindowsRuntime/Core/**/*.cs",
+            "../../WindowsRuntime/Blob/**/*.cs",
+            "../../WindowsRuntime/Queue/**/*.cs",
+            "../../WindowsRuntime/File/**/*.cs",
+            "../../WindowsRuntime/Table/**/*.cs"
+        ]
+    }
+}

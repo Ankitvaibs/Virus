@@ -1,0 +1,10 @@
+# development
+/node_modules
+/coverage
+*.log
+
+# dotfiles
+.*
+!.gitignore
+*~
+*#*

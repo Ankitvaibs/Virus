@@ -1,0 +1,155 @@
+{namespace microsoft.office365.templates}
+
+/**
+ * @param repository Repository object
+ * @param configurations
+ * @param error
+ */
+{template .repositorySettings}
+<html>
+<head>
+    <meta name="decorator" content="bitbucket.repository.settings">
+    <meta name="projectKey" content="{$repository.project.key}">
+    <meta name="repositorySlug" content="{$repository.slug}">
+    <meta name="activeTab" content="repository-settings-plugin-tab">
+    <title>{$repository.slug} / Office 365 Connector</title>
+</head>
+<body>
+    {if $error}
+      <div style="color: #BF3333; background-color: #DDDDDD"><div style="padding: 15px"><b>ERROR:</b> {$error}</b></div></div>
+    {/if}
+    <header class="aui-page-header">
+        <div class="aui-page-header-inner">
+            <div class="aui-page-header-main">
+                <h2>Office 365 Connector</h2>
+            </div>
+            <div class="aui-page-header-actions">
+            </div>
+        </div>
+    </header>
+    <div class="page-description">
+        <p>Webhooks allow you to extend what Bitbucket does when the repository changes (for example, new code is pushed or a pull request is merged).</p>
+        <p/>
+    </div>
+    <div>
+        <p>
+            <a href="?edit" class="aui-button  aui-button-primary">Add webhook</a>
+        </p>
+        <table class="aui">
+            <thead>
+            <tr>
+                <th id="title">Title</th>
+                <th id="url">URL</th>
+                <th id="action">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {foreach $configuration in $configurations}
+                <tr>
+                    <td headers="title">
+                    {$configuration.title}
+                    {if $configuration.enabled}{else}<span style="margin-left:5px;" class="aui-lozenge aui-lozenge-default">Inactive</span>
+                    {/if}
+                    </td>
+                    <td headers="url">{$configuration.URL}</td>
+                    <td class="action" headers="action">
+                        <ul class="menu">
+                            <li>
+                                <a href="?edit&id={$configuration.ID}">Edit</a>
+                            </li>
+                            <li>
+                                <a href="?delete&id={$configuration.ID}">Delete</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            {ifempty}
+                 <tr>
+                     <td colspan="4" style="text-align:center;">No webhooks configured.</td>
+                 </tr>
+            {/foreach}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+{/template}
+
+
+/**
+ * @param repository Repository object
+ * @param configuration configuration object
+ */
+{template .edit}
+   <html>
+   <head>
+       <meta name="decorator" content="bitbucket.repository.settings">
+       <meta name="projectKey" content="{$repository.project.key}">
+       <meta name="repositorySlug" content="{$repository.slug}">
+       <meta name="activeTab" content="repository-settings-plugin-tab">
+       <title>{$repository.slug} / Office 365 Connector</title>
+   </head>
+   <body>
+       <header class="aui-page-header">
+           <div class="aui-page-header-inner">
+               <div class="aui-page-header-main">
+                   <ol class="aui-nav aui-nav-breadcrumbs">
+                     <li><a class="active" href="?">Office 365 Connector</a></li>
+                   </ol>
+                   {if $configuration}
+                   <h2>Edit {$configuration.title}</h2>
+                   {else}
+                   <h2>Add new webhook</h2>
+                   {/if}
+               </div>
+           </div>
+       </header>
+       {call aui.form.form}
+         {param action: '' /}
+         {param content}
+           {call aui.group.group}
+             {param content}
+               {call aui.form.textField}
+                 {param id: 'title' /}
+                 {param legendContent: 'Title' /}
+                 {param labelContent: 'Title' /}
+                 {param value:  $configuration ? $configuration.title : '' /}
+               {/call}
+               {call aui.form.textField}
+                 {param id: 'url' /}
+                 {param legendContent: 'URL' /}
+                 {param labelContent: 'URL' /}
+                 {param value:  $configuration ? $configuration.URL : '' /}
+               {/call}
+               {call aui.form.checkboxField}
+                 {param legendContent: 'Status' /}
+                 {param fields: [[
+                   'id': 'enabled',
+                   'labelText': 'Active',
+                   'isChecked': $configuration ? $configuration.enabled : true,
+                   'descriptionText': 'Inactive webhooks don\'t trigger requests'
+                 ]] /}
+               {/call}
+               <br />
+               {call aui.form.buttons}
+                 {param content}
+                   {call aui.form.submit}
+                     {param id: 'submit' /}
+                     {param text: 'Save' /}
+                     {param type: 'primary' /}
+                   {/call}
+                   {call aui.form.button}
+                     {param id: 'cancel' /}
+                     {param text: 'Cancel' /}
+                     {param type: 'link' /}
+                     {param href: '?' /}
+                   {/call}
+                 {/param}
+               {/call}
+             {/param}
+           {/call}
+         {/param}
+       {/call}
+   </body>
+   </html>
+{/template}

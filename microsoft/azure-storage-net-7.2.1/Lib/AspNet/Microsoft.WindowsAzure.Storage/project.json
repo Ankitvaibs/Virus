@@ -1,0 +1,60 @@
+﻿{
+    "version": "7.2.1.0",
+    "authors": [ "Microsoft Corporation" ],
+    "description": "Azure Storage SDK for CoreCLR Preview",
+    "dependencies": {
+        "Microsoft.Data.OData": "5.6.4",
+        "Microsoft.Data.Services.Client": "5.6.4",
+        "System.Spatial": "5.6.4",
+        "Newtonsoft.Json": "9.0.1"
+    },
+
+    "frameworks": {
+        "netstandard1.3": {
+            "dependencies": {
+                "NETStandard.Library": "1.6.0"
+            },
+            "imports": [
+                "dnxcore50",
+                "portable-net451+win8"
+            ]
+        }
+
+    },
+
+    "buildOptions": {
+        "define": [ "NETCORE" ],
+        "allowUnsafe": false,
+        "warningsAsErrors": true,
+        "delaySign": true,
+        "keyFile": "MSSharedLibKey.snk",
+        "compile": [
+            "**/*.cs",
+
+            "../../Common/*.cs",
+            "../../Common/Shared/**/*.cs",
+            "../../Common/Auth/**/*.cs",
+            "../../Common/Core/**/*.cs",
+            "../../Common/RetryPolicies/**/*.cs",
+            "../../Common/Blob/**/*.cs",
+            "../../Common/File/**/*.cs",
+            "../../Common/Queue/**/*.cs",
+            "../../Common/Table/*.cs",
+            "../../Common/Table/Protocol/*.cs",
+
+            "../../WindowsRuntime/*.cs",
+            "../../WindowsRuntime/Auth/**/*.cs",
+            "../../WindowsRuntime/Blob/Protocol/*.cs",
+            "../../WindowsRuntime/Blob/*.cs",
+            "../../WindowsRuntime/Core/**/*.cs",
+            "../../WindowsRuntime/Shared/**/*.cs",
+            "../../WindowsRuntime/Queue/*.cs",
+            "../../WindowsRuntime/Queue/Protocol/*.cs",
+            "../../WindowsRuntime/File/*.cs",
+            "../../WindowsRuntime/File/Protocol/*.cs",
+            "../../WindowsRuntime/Table/*.cs",
+            "../../WindowsRuntime/Table/DataServices/*.cs",
+            "../../WindowsRuntime/Table/Protocol/*.cs"
+        ]
+    }
+}

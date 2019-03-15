@@ -1,0 +1,48 @@
+---
+name: React
+description: A JavaScript library for building user interfaces
+url: https://facebook.github.io
+baseurl: "/react"
+permalink: "/blog/:year/:month/:day/:title.html"
+paginate_path: "/blog/page:num/"
+relative_permalinks: true
+paginate: 5
+timezone: America/Los_Angeles
+highlighter: pygments
+defaults:
+- scope:
+    path: ''
+    type: post
+  values:
+    layout: post
+- scope:
+    path: docs
+    type: page
+  values:
+    layout: docs
+exclude:
+- Gemfile
+- Gemfile.lock
+- README.md
+- Rakefile
+- vendor/bundle
+markdown: redcarpet
+redcarpet:
+  extensions:
+  - fenced_code_blocks
+  - footnotes
+sass:
+  style: :compressed
+  sass_dir: _css
+gems:
+- jekyll-redirect-from
+react_version: 15.0.2
+react_hashes:
+  dev: dedPNF++oHBwT++5v2VMeXSzyNkqJd7tbc3ic+wN3l0u/NEBcMNuf9a7knYgwTco
+  prod: 1kql9Cm3anPpO0n0a4T7keJt+N4pixvMU33Bk69kZi1WkN6gbq1EVZdfZLjqwmFq
+  addons_dev: b7jdy0/iqeUofUONQyRN/Y3DO/h61sL56BgMXJzfokC2mtsi2pJGhQekw6QqI/71
+  addons_prod: 1J/3e0bGfmFbeuWDRmyBoBOImeFnDn03OKWsXiWVOThql8Yf1qXaim7NrAqL4RHi
+  dom_dev: kQ+9o036IWQT7tKVxA8siLqHR0DekC3YXbkA7RsFQHbuqQutOmb3cOsTQ1WFtMhW
+  dom_prod: q14dOJErroITWJ+DFXug03tOxuZ4fm7u5BkcbboXFWJNvDGPepPWXUuIphvvAsAl
+  dom_server_dev: WiRnBunlOqqLKTWNe+788pJ0QLFIXXktwBnqNV2OggmTROfZJvn1WfrZyh0xhnja
+  dom_server_prod: wkSOmc5KBqBSFy+CAVk0ehSoBEMqzpKj4lzcoKLBchNzTIwCAZ3Pe+LX73kyNNhz

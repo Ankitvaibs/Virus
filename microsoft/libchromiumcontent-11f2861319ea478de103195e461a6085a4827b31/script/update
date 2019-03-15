@@ -1,0 +1,298 @@
+#!/usr/bin/env python
+
+import argparse
+import contextlib
+import errno
+import os
+import shutil
+import subprocess
+import sys
+import urllib2
+
+from lib.config import get_output_dir
+
+
+SOURCE_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+VENDOR_DIR = os.path.join(SOURCE_ROOT, 'vendor')
+SRC_DIR = os.path.join(SOURCE_ROOT, 'src')
+CHROMIUMCONTENT_SOURCE_DIR = os.path.join(SOURCE_ROOT, 'chromiumcontent')
+CHROMIUMCONTENT_DESTINATION_DIR = os.path.join(SRC_DIR, 'chromiumcontent')
+COMPONENTS = ['static_library', 'shared_library', 'ffmpeg']
+DEPOT_TOOLS = os.path.join(VENDOR_DIR, 'depot_tools')
+
+NINJA = os.path.join(DEPOT_TOOLS, 'ninja')
+if sys.platform == 'win32':
+  NINJA = '{0}.exe'.format(NINJA)
+
+DEBIAN_MIRROR = 'http://ftp.jp.debian.org/debian/pool/main/'
+BINTOOLS_NAME = 'c/cross-binutils/binutils-aarch64-linux-gnu_2.25-5_amd64.deb'
+GCLIENT_CONFIG_PATH = os.path.join(SOURCE_ROOT, '.gclient')
+GCLIENT_CONFIG_TEMPLATE = '''
+solutions = [
+  {{
+    "url": "https://chromium.googlesource.com/chromium/src.git",
+    "managed": False,
+    "name": "src",
+    "deps_file": ".DEPS.git",
+    "custom_deps": {{}},
+  }},
+]
+{cache_dir_line}
+'''
+
+def main():
+  args = parse_args()
+
+  if sys.platform == 'win32' and not args.skip_depot_tools_update:
+    update_depot_tools()
+
+  if args.clean and os.path.isdir(SRC_DIR):
+    git_clean_recursive(SRC_DIR)
+
+  # Warning about using a network share as git cache from Windows 7+: The
+  # gclient script may experience errors unless you disable SMBv2 cache by
+  # setting the registry key
+  # HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Lanmanworkstation\Parameters\DirectoryCacheLifetime
+  # to 0.
+  # More information: https://stackoverflow.com/a/9935126
+  git_cache = args.git_cache or os.getenv('LIBCHROMIUMCONTENT_GIT_CACHE', '')
+  if not args.skip_gclient:
+    if (args.source_only):
+      return gclient_sync(chromium_version(), args.clean, git_cache)
+    else:
+      gclient_sync(chromium_version(), args.clean, git_cache)
+
+  if sys.platform == 'linux2':
+    install_sysroot()
+  elif sys.platform in ['win32', 'cygwin']:
+    update_toolchain_json()
+
+  target_arch = args.target_arch
+  if target_arch == 'arm64':
+    install_aarch64_bintools()
+
+  return (apply_patches(args.skip_patches) or
+          copy_chromiumcontent_files() or
+          update_clang() or
+          run_gn(target_arch, args.defines))
+
+
+def parse_args():
+  parser = argparse.ArgumentParser(description='Update build configuration')
+  parser.add_argument('-t', '--target_arch', default='x64', help='x64 or ia32')
+  parser.add_argument('--defines', default='',
+                      help='The definitions passed to gyp')
+  parser.add_argument('--git-cache', default='',
+                      help='Global git object cache for chromium+ deps')
+  parser.add_argument('--clean', action='store_true',
+                      help='Cleans the working directory for full rebuild')
+  parser.add_argument('--skip_patches', action='store_true',
+                      help='Skips applying patches, easier to build locally')
+  parser.add_argument('--skip_gclient', action='store_true',
+                      help='Skips syncing repo, easier to build locally')
+  parser.add_argument('--skip_depot_tools_update', action='store_true',
+                      help='Skips update depot tools on windows, easier to build locally')
+  parser.add_argument('--source_only', action='store_true',
+                      help='Only sync the chromium source code')
+  return parser.parse_args()
+
+
+def chromium_version():
+  with open(os.path.join(SOURCE_ROOT, 'VERSION')) as f:
+    return f.readline().strip()
+
+
+def install_sysroot():
+  for arch in ('arm', 'arm64', 'amd64', 'i386'):
+    install = os.path.join(SRC_DIR, 'build', 'linux', 'sysroot_scripts',
+                           'install-sysroot.py')
+    subprocess.check_call([sys.executable, install, '--arch', arch])
+
+
+def install_aarch64_bintools():
+  destination = os.path.join(VENDOR_DIR, 'binutils-aarch64')
+  if os.path.exists(destination):
+    return
+
+  url = DEBIAN_MIRROR + BINTOOLS_NAME
+  deb_name = 'binutils-aarch64.deb'
+  with open(deb_name, 'wb+') as f:
+    with contextlib.closing(urllib2.urlopen(url)) as u:
+      while True:
+        chunk = u.read(1024*1024)
+        if not len(chunk):
+          break
+        f.write(chunk)
+
+  env = os.environ.copy()
+  env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+  subprocess.call(['dpkg', '-x', deb_name, destination])
+  rm_f(deb_name)
+
+
+def update_toolchain_json():
+  env = os.environ.copy()
+  env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+  vs_toolchain = os.path.join(SRC_DIR, 'build', 'vs_toolchain.py')
+  subprocess.check_call([sys.executable, vs_toolchain, 'update'], env=env)
+
+
+def copy_chromiumcontent_files():
+  try:
+    os.makedirs(CHROMIUMCONTENT_DESTINATION_DIR)
+  except OSError as e:
+    if e.errno != errno.EEXIST:
+      raise
+  for dirpath, dirnames, filenames in os.walk(CHROMIUMCONTENT_SOURCE_DIR):
+    for dirname in dirnames:
+      source = os.path.join(dirpath, dirname)
+      relative = os.path.relpath(source, start=CHROMIUMCONTENT_SOURCE_DIR)
+      mkdir_p(os.path.join(CHROMIUMCONTENT_DESTINATION_DIR, relative))
+    for filename in filenames:
+      source = os.path.join(dirpath, filename)
+      relative = os.path.relpath(source, start=CHROMIUMCONTENT_SOURCE_DIR)
+      destination = os.path.join(CHROMIUMCONTENT_DESTINATION_DIR, relative)
+      if is_newer(destination, source):
+        continue
+      shutil.copy2(source, destination)
+
+
+def update_depot_tools():
+  env = os.environ.copy()
+  # Don't actually update the depot tools, just install the required
+  # tools like python
+  env['DEPOT_TOOLS_UPDATE'] = '0'
+  # Remove trailing slash from TEMP
+  # https://bugs.chromium.org/p/chromium/issues/detail?id=340243
+  env['TEMP'] = env['TEMP'].rstrip('\\')
+  env['PATH'] = os.pathsep.join([os.path.join(VENDOR_DIR, 'depot_tools'),
+                                 env['PATH']])
+  update_path = os.path.join(VENDOR_DIR, 'depot_tools', 'update_depot_tools.bat')
+  subprocess.check_call([update_path], env=env)
+
+
+def ensure_gclient_config(git_cache):
+  # escape backslashes to avoid escaping the cache_dir assignment quote
+  git_cache = git_cache.replace('\\', '\\\\')
+  with open(GCLIENT_CONFIG_PATH, 'wb') as f:
+    f.write(GCLIENT_CONFIG_TEMPLATE.format(
+      cache_dir_line="cache_dir = '{0}'".format(git_cache) if git_cache else ''
+      ))
+
+
+def gclient_sync(version, force, git_cache):
+  # Remove untracked files in src.
+  if os.path.exists(os.path.join(SRC_DIR, '.git')):
+    with scoped_cwd(SRC_DIR):
+      subprocess.check_call(['git', 'clean', '-df'])
+
+  ensure_gclient_config(git_cache)
+  env = os.environ.copy()
+  if sys.platform in ['win32', 'cygwin']:
+    env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+  env['PATH'] = os.pathsep.join([os.path.join(VENDOR_DIR, 'depot_tools'),
+                                 env['PATH']])
+  gclient = os.path.join(VENDOR_DIR, 'depot_tools', 'gclient.py')
+  args = [sys.executable, gclient, 'sync', '--jobs', '16',
+          '--revision', 'src@{0}'.format(version), '--with_tags',
+          '--with_branch_heads', '--reset', '--delete_unversioned_trees']
+  if git_cache:
+    args += ['--lock_timeout=15']
+  if force:
+    args += ['--force']
+  subprocess.check_call(args, env=env)
+
+
+def apply_patches(skip_patches):
+  return (subprocess.call([sys.executable,
+                          os.path.join(SOURCE_ROOT, 'script', 'apply-patches')])
+         if not skip_patches
+         else True)
+
+
+def update_clang():
+  env = os.environ.copy()
+  env['PATH'] = os.pathsep.join([os.path.join(VENDOR_DIR, 'depot_tools'),
+                                 env['PATH']])
+  env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+  update = os.path.join(SRC_DIR, 'tools', 'clang', 'scripts', 'update.py')
+  return subprocess.call([sys.executable, update, '--if-needed'], env=env)
+
+
+def run_gn(target_arch, defines):
+  if sys.platform in ['win32', 'cygwin']:
+    gn = os.path.join(SRC_DIR, 'buildtools', 'win', 'gn.exe')
+  elif sys.platform == 'linux2':
+    gn = os.path.join(SRC_DIR, 'buildtools', 'linux64', 'gn')
+  elif sys.platform == 'darwin':
+    gn = os.path.join(SRC_DIR, 'buildtools', 'mac', 'gn')
+
+  env = os.environ.copy()
+  if sys.platform in ['win32', 'cygwin']:
+    env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+
+  if target_arch == 'ia32':
+    target_cpu = 'x86'
+  else:
+    target_cpu = target_arch
+
+  for component in COMPONENTS:
+    args = 'import("//chromiumcontent/args/{0}.gn") target_cpu="{1}"'.format(component, target_cpu)
+    if sys.platform in ['win32', 'cygwin']:
+      args += ' use_experimental_allocator_shim=false'
+    if sys.platform == 'linux2':
+      args += ' use_gtk3=false'
+    output_dir = get_output_dir(SOURCE_ROOT, target_arch, component)
+    subprocess.call([gn, 'gen', os.path.relpath(output_dir, SRC_DIR), '--args=' + args],
+                    cwd=SRC_DIR, env=env)
+
+
+def is_newer(destination, source):
+  return os.path.exists(destination) and \
+    os.path.getmtime(destination) > os.path.getmtime(source)
+
+
+def git_clean_recursive(path):
+  for root, dirs, files in os.walk(path):
+    if '.git' in dirs:
+      subprocess.call(['git', 'clean', '-xdf'], cwd=root)
+      dirs.remove('.git')
+
+
+def rm_f(path):
+  try:
+    os.remove(path)
+  except OSError as e:
+    if e.errno != errno.ENOENT:
+      raise
+
+
+def rm_rf(path):
+  try:
+    shutil.rmtree(path)
+  except OSError as e:
+    if e.errno != errno.ENOENT:
+      raise
+
+
+def mkdir_p(path):
+  try:
+    os.makedirs(path)
+  except OSError as e:
+    if e.errno != errno.EEXIST:
+      raise
+
+
+@contextlib.contextmanager
+def scoped_cwd(path):
+  cwd = os.getcwd()
+  os.chdir(path)
+  try:
+    yield
+  finally:
+    os.chdir(cwd)
+
+
+if __name__ == '__main__':
+  import sys
+  sys.exit(main())

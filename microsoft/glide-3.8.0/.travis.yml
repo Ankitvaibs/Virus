@@ -1,0 +1,14 @@
+language: android
+android:
+  components:
+  - build-tools-19.1.0
+  licenses: 
+  - 'android-sdk-license.*'
+
+sudo: false
+
+script: 'travis_retry ./gradlew build'
+
+after_success:
+- scripts/travis-sonatype-publish.sh
+- ./gradlew jacocoTestReport coveralls

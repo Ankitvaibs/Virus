@@ -1,0 +1,2 @@
+OTHER_LDFLAGS=$(inherited) -framework Foundation -framework Security -framework SystemConfiguration -framework UIKit -framework CoreTelephony -lz -lc++
+MSAI_DOCSET_NAME=ApplicationInsights

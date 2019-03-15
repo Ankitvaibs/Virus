@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import subprocess
+import sys
+
+from lib.config import get_output_dir
+
+
+SOURCE_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+VENDOR_DIR = os.path.join(SOURCE_ROOT, 'vendor')
+TARGETS = ['chromiumcontent_all']
+COMPONENTS = ['static_library', 'shared_library', 'ffmpeg']
+
+NINJA = os.path.join(VENDOR_DIR, 'depot_tools', 'ninja')
+if sys.platform == 'win32':
+  NINJA = '{0}.exe'.format(NINJA)
+
+
+def main():
+  args = parse_args()
+  target_arch = args.target_arch
+
+  env = os.environ.copy()
+  env['PATH'] = os.pathsep.join([os.path.join(VENDOR_DIR, 'depot_tools'),
+                                 env['PATH']])
+  if sys.platform in ['win32', 'cygwin']:
+    env['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+  if target_arch == 'arm64':
+    binutils_dir = os.path.join(VENDOR_DIR, 'binutils-aarch64')
+    env['LD_LIBRARY_PATH'] = binutils_dir + '/usr/x86_64-linux-gnu/aarch64-linux-gnu/lib'
+    env['PATH'] = os.pathsep.join([binutils_dir + '/usr/bin', env['PATH']])
+
+  os.chdir(SOURCE_ROOT)
+
+  for component in COMPONENTS:
+    if args.component == 'all' or args.component == component:
+      if component == 'shared_library' and args.no_shared_library:
+        continue
+      elif component == 'static_library' and args.no_static_library:
+        continue
+      out_dir = get_output_dir(SOURCE_ROOT, target_arch, component)
+      target = 'chromiumcontent:chromiumcontent'
+      subprocess.check_call([NINJA, '-C', os.path.relpath(out_dir), target], env=env)
+      if component == 'static_library':
+        subenv = env.copy()
+        subenv['CHROMIUMCONTENT_2ND_PASS'] = '1'
+        target = 'chromiumcontent:libs'
+        subprocess.check_call([NINJA, '-C', os.path.relpath(out_dir), target], env=subenv)
+
+
+def parse_args():
+  parser = argparse.ArgumentParser(description='Build libchromiumcontent')
+  parser.add_argument('-t', '--target_arch', default='x64', help='x64 or ia32')
+  parser.add_argument('-c', '--component', default='all',
+                      help='static_library or shared_library or all')
+  parser.add_argument('-D', '--no_static_library', action='store_true',
+                      help='Do not build static library version')
+  parser.add_argument('-R', '--no_shared_library', action='store_true',
+                      help='Do not build shared library version')
+  return parser.parse_args()
+
+
+if __name__ == '__main__':
+    sys.exit(main())
